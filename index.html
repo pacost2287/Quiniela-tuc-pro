@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ki<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -308,22 +308,46 @@
         </a>
     </div>
 
-    <!-- NUEVA SECCIÓN: Armar Jugada para WhatsApp -->
+    <!-- SECCIÓN: Armar Jugada para WhatsApp (Actualizada con Redoblona y Triplona) -->
     <div class="card" style="border: 2px solid var(--whatsapp-color);">
         <h3 style="color: var(--whatsapp-color);">📱 Armar Jugada para Agencia (WhatsApp)</h3>
         
-        <div class="wsp-inputs">
-            <input type="text" id="wspNumero" placeholder="Número (ej: 20 o 320-710)">
-            <select id="wspUbicacion">
-                <option value="1">1° (Cabeza)</option>
-                <option value="5">A los 5</option>
-                <option value="10">A los 10</option>
-                <option value="20">A los 20</option>
-                <option value="Triplona">Triplona</option>
+        <div style="margin-bottom: 8px;">
+            <label style="font-size: 0.85rem; font-weight: bold; color: #64748b;">Tipo de Jugada:</label>
+            <select id="wspTipoJugada" onchange="cambiarTipoJugada()" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; background: white; margin-top: 4px;">
+                <option value="normal">Normal / Directa</option>
+                <option value="redoblona">Redoblona (2 números combinados)</option>
+                <option value="triplona">Triplona (2 números de 3 cifras)</option>
             </select>
-            <input type="number" id="wspMonto" placeholder="Monto ($)">
         </div>
-        <button class="btn" style="background-color: var(--success-color); margin-top: 0;" onclick="agregarApuestaWSP()">➕ Agregar al Ticket</button>
+
+        <!-- Contenedor para Normal y Redoblona -->
+        <div id="camposNormalRedoblona">
+            <div class="wsp-inputs" style="grid-template-columns: 1fr 1fr; margin-bottom: 6px;">
+                <input type="number" id="wspNum1" placeholder="Número 1 (ej: 77)">
+                <input type="number" id="wspNum2" placeholder="Número 2 (Opc. Redoblona)">
+            </div>
+            <div class="wsp-inputs" style="grid-template-columns: 1fr 1fr;">
+                <select id="wspUbicacion">
+                    <option value="1">Hasta el 1° (Cabeza)</option>
+                    <option value="5">Hasta el 5°</option>
+                    <option value="10">Hasta el 10°</option>
+                    <option value="20">Hasta el 20°</option>
+                </select>
+                <input type="number" id="wspMonto" placeholder="Monto ($)">
+            </div>
+        </div>
+
+        <!-- Contenedor exclusivo para Triplona -->
+        <div id="camposTriplona" style="display: none;">
+            <div class="wsp-inputs" style="grid-template-columns: 1fr 1fr; margin-bottom: 6px;">
+                <input type="number" id="wspTrip1" placeholder="1° Num 3 cifras (ej: 320)">
+                <input type="number" id="wspTrip2" placeholder="2° Num 3 cifras (ej: 710)">
+            </div>
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 6px; text-align: center;">ℹ️ La triplona no lleva monto adicional.</div>
+        </div>
+
+        <button class="btn" style="background-color: var(--success-color); margin-top: 8px;" onclick="agregarApuestaWSP()">➕ Agregar al Ticket</button>
 
         <div style="margin-top: 10px;">
             <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: #64748b;">Ticket actual:</div>
@@ -336,6 +360,8 @@
             </div>
             <button class="btn btn-whatsapp" style="margin-top:0;" onclick="enviarJugadaWhatsApp()">💬 Enviar Jugada por WhatsApp</button>
             <button class="btn btn-danger" style="margin-top: 5px; padding: 6px; font-size: 0.8rem;" onclick="limpiarTicketWSP()">🗑️ Limpiar Ticket</button>
+        </div>
+    </div>
         </div>
     </div>
 
