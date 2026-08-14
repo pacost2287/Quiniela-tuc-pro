@@ -467,24 +467,72 @@ ki<!DOCTYPE html>
         let premiosTemporales = [];
         let ticketWhatsApp = [];
 
-        // Lógica para el generador de WhatsApp
+        // Control visual entre Normal, Redoblona y Triplona
+        function cambiarTipoJugada() {
+            let tipo = document.getElementById('wspTipoJugada').value;
+            let divNR = document.getElementById('camposNormalRedoblona');
+            let divTrip = document.getElementById('camposTriplona');
+            let inputNum2 = document.getElementById('wspNum2');
+
+            if (tipo === 'triplona') {
+                divNR.style.display = 'none';
+                divTrip.style.display = 'block';
+            } else {
+                divNR.style.display = 'block';
+                divTrip.style.display = 'none';
+                if (tipo === 'redoblona') {
+                    inputNum2.style.display = 'block';
+                    inputNum2.placeholder = "2° Número Redoblona";
+                } else {
+                    inputNum2.style.display = 'none';
+                    inputNum2.value = '';
+                }
+            }
+        }
+
         function agregarApuestaWSP() {
-            let numero = document.getElementById('wspNumero').value.trim();
-            let ubicacion = document.getElementById('wspUbicacion').value;
-            let monto = parseFloat(document.getElementById('wspMonto').value);
+            let tipo = document.getElementById('wspTipoJugada').value;
+            
+            if (tipo === 'triplona') {
+                let t1 = document.getElementById('wspTrip1').value.trim();
+                let t2 = document.getElementById('wspTrip2').value.trim();
+                if (!t1 || !t2) {
+                    alert("Ingresá los dos números de 3 cifras para la triplona.");
+                    return;
+                }
+                ticketWhatsApp.push({ tipo: 'triplona', t1, t2 });
+                document.getElementById('wspTrip1').value = '';
+                document.getElementById('wspTrip2').value = '';
+            } else {
+                let num1 = document.getElementById('wspNum1').value.trim();
+                let num2 = document.getElementById('wspNum2').value.trim();
+                let ubicacion = document.getElementById('wspUbicacion').value;
+                let monto = parseFloat(document.getElementById('wspMonto').value);
 
-            if (!numero) {
-                alert("Ingresá un número o triplona.");
-                return;
-            }
-            if (isNaN(monto) || monto <= 0) {
-                alert("Ingresá un monto válido.");
-                return;
+                if (!num1) {
+                    alert("Ingresá el número principal.");
+                    return;
+                }
+                if (isNaN(monto) || monto <= 0) {
+                    alert("Ingresá un monto válido.");
+                    return;
+                }
+
+                if (tipo === 'redoblona') {
+                    if (!num2) {
+                        alert("Para la redoblona necesitas ingresar el segundo número.");
+                        return;
+                    }
+                    ticketWhatsApp.push({ tipo: 'redoblona', num1, num2, ubicacion, monto });
+                    document.getElementById('wspNum2').value = '';
+                } else {
+                    ticketWhatsApp.push({ tipo: 'normal', num1, ubicacion, monto });
+                }
+
+                document.getElementById('wspNum1').value = '';
+                document.getElementById('wspMonto').value = '';
             }
 
-            ticketWhatsApp.push({ numero, ubicacion, monto });
-            document.getElementById('wspNumero').value = '';
-            document.getElementById('wspMonto').value = '';
             actualizarVistaTicketWSP();
         }
 
@@ -500,11 +548,22 @@ ki<!DOCTYPE html>
             }
 
             ticketWhatsApp.forEach((item, index) => {
-                total += item.monto;
-                let textoUbicacion = item.ubicacion === 'Triplona' ? 'Triplona' : `${item.ubicacion}°`;
+                let textoItem = '';
+                if (item.tipo === 'triplona') {
+                    textoItem = `Triplona: ${item.t1} - ${item.t2} (Sin cargo)`;
+                } else if (item.tipo === 'redoblona') {
+                    total += item.monto;
+                    let textoUbicacion = item.ubicacion === '1' ? '1° (Cabeza)' : `a los ${item.ubicacion}°`;
+                    textoItem = `Redoblona: ${item.num1} y ${item.num2} — ${textoUbicacion} — $${item.monto.toLocaleString()}`;
+                } else {
+                    total += item.monto;
+                    let textoUbicacion = item.ubicacion === '1' ? '1° (Cabeza)' : `a los ${item.ubicacion}°`;
+                    textoItem = `${item.num1} — ${textoUbicacion} — $${item.monto.toLocaleString()}`;
+                }
+
                 container.innerHTML += `
                     <div class="wsp-item">
-                        <span><b>${item.numero}</b> — ${textoUbicacion} — $${item.monto.toLocaleString()}</span>
+                        <span style="font-size:0.8rem;"><b>${textoItem}</b></span>
                         <button onclick="eliminarApuestaWSP(${index})" style="background:none; border:none; color:var(--hot-color); font-weight:bold; cursor:pointer;">❌</button>
                     </div>`;
             });
@@ -532,11 +591,14 @@ ki<!DOCTYPE html>
             let total = 0;
 
             ticketWhatsApp.forEach(item => {
-                total += item.monto;
-                if (item.ubicacion === 'Triplona') {
-                    mensaje += `• Triplona: ${item.numero} — $${item.monto.toLocaleString()}\n`;
+                if (item.tipo === 'triplona') {
+                    mensaje += `• Triplona: ${item.t1} - ${item.t2}\n`;
+                } else if (item.tipo === 'redoblona') {
+                    total += item.monto;
+                    mensaje += `• Redoblona: ${item.num1} y ${item.num2} _ ${item.ubicacion}° _ $${item.monto.toLocaleString()}\n`;
                 } else {
-                    mensaje += `• ${item.numero} _ ${item.ubicacion}° _ $${item.monto.toLocaleString()}\n`;
+                    total += item.monto;
+                    mensaje += `• ${item.num1} _ ${item.ubicacion}° _ $${item.monto.toLocaleString()}\n`;
                 }
             });
 
