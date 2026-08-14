@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento Quiniela Pro Max</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="icon" type="image/png" href="./icono-192.png">
+    <link rel="apple-touch-icon" href="./icono-192.png">
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --text-main: #1f2937;
+            --border-color: #e5e7eb;
+            --hot-color: #ef4444;
+            --cold-color: #3b82f6;
+            --success-color: #059669;
+            --whatsapp-color: #25d366;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+        }
+
+        h2 { text-align: center; color: var(--primary); margin-bottom: 15px; }
+
+        .official-link-container { margin-bottom: 15px; }
+
+        .btn-official {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: var(--success-color);
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90px;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .btn-success { background-color: var(--success-color); }
+        .btn-danger { background-color: var(--hot-color); margin-top: 5px; }
+        .btn-warning { background-color: #d97706; }
+        .btn-whatsapp { background-color: var(--whatsapp-color); color: white; }
+
+        #previewContainer {
+            display: none;
+            background: #f8fafc;
+            border: 2px dashed var(--primary-light);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .preview-badge {
+            background: #e2e8f0;
+            text-align: center;
+            padding: 6px 2px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .finance-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .f-box {
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .f-box span { display: block; font-size: 0.75rem; color: #64748b; font-weight: bold; }
+        .f-box strong { font-size: 0.95rem; }
+        
+        .finance-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .finance-inputs input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        .btn-fin {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-carga { background-color: var(--hot-color); }
+        .btn-retiro { background-color: var(--success-color); }
+
+        .finance-history {
+            max-height: 120px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .f-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            background: #f8fafc;
+        }
+        .f-item.carga { border-left: 3px solid var(--hot-color); }
+        .f-item.retiro { border-left: 3px solid var(--success-color); }
+
+        .stats-container { display: flex; gap: 10px; }
+        .stat-box {
+            flex: 1;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .stat-box h4 { margin: 0 0 8px 0; font-size: 0.9rem; text-align: center; }
+        .stat-list { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; min-height: 40px; }
+
+        .badge { background: #e2e8f0; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; }
+        .badge.hot { background: #fee2e2; color: var(--hot-color); }
+        .badge.cold { background: #dbeafe; color: var(--cold-color); }
+
+        .borratina-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .b-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+        }
+        .b-item.tachado { background: #cbd5e1; color: #94a3b8; text-decoration: line-through; }
+        .b-item.hot-borratina { background: #fee2e2; color: var(--hot-color); border: 1px solid var(--hot-color); }
+
+        .head-list { max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .head-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+            font-size: 0.9rem;
+        }
+        .head-item.is-hot { border-left-color: var(--hot-color); background: #fff5f5; }
+        .hot-alert-tag { font-size: 0.7rem; background: var(--hot-color); color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        
+        .mes-item {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Estilos para el generador de WhatsApp */
+        .wsp-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .wsp-inputs input, .wsp-inputs select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+            background: white;
+        }
+        .wsp-lista {
+            max-height: 140px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .wsp-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--success-color);
+            font-size: 0.85rem;
+        }
+
+        #modalDetalle {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Seguimiento Quiniela Pro Max</h2>
+
+    <div class="official-link-container">
+        <a href="https://resultadosquiniela.cajapopular.gov.ar/" target="_blank" class="btn-official">
+            🌐 Ver Resultados Oficiales
+        </a>
+    </div>
+
+    <!-- NUEVA SECCIÓN: Armar Jugada para WhatsApp -->
+    <div class="card" style="border: 2px solid var(--whatsapp-color);">
+        <h3 style="color: var(--whatsapp-color);">📱 Armar Jugada para Agencia (WhatsApp)</h3>
+        
+        <div class="wsp-inputs">
+            <input type="text" id="wspNumero" placeholder="Número (ej: 20 o 320-710)">
+            <select id="wspUbicacion">
+                <option value="1">1° (Cabeza)</option>
+                <option value="5">A los 5</option>
+                <option value="10">A los 10</option>
+                <option value="20">A los 20</option>
+                <option value="Triplona">Triplona</option>
+            </select>
+            <input type="number" id="wspMonto" placeholder="Monto ($)">
+        </div>
+        <button class="btn" style="background-color: var(--success-color); margin-top: 0;" onclick="agregarApuestaWSP()">➕ Agregar al Ticket</button>
+
+        <div style="margin-top: 10px;">
+            <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: #64748b;">Ticket actual:</div>
+            <div class="wsp-lista" id="wspListaContainer">
+                <span style="color: #94a3b8; font-size: 0.8rem; text-align: center;">No hay jugadas añadidas aún</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">
+                <span>Total a Abonar:</span>
+                <span id="wspTotalAbonar" style="color: var(--success-color);">$0</span>
+            </div>
+            <button class="btn btn-whatsapp" style="margin-top:0;" onclick="enviarJugadaWhatsApp()">💬 Enviar Jugada por WhatsApp</button>
+            <button class="btn btn-danger" style="margin-top: 5px; padding: 6px; font-size: 0.8rem;" onclick="limpiarTicketWSP()">🗑️ Limpiar Ticket</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>💰 Control Financiero</h3>
+        <div class="finance-summary">
+            <div class="f-box">
+                <span>Total Cargas</span>
+                <strong id="totalCargas" style="color: var(--hot-color);">$0</strong>
+            </div>
+            <div class="f-box">
+                <span>Total Retiros</span>
+                <strong id="totalRetiros" style="color: var(--success-color);">$0</strong>
+            </div>
+            <div class="f-box">
+                <span>Saldo Actual</span>
+                <strong id="saldoActual">$0</strong>
+            </div>
+        </div>
+
+        <div class="finance-inputs">
+            <input type="number" id="montoInput" placeholder="Monto ($)">
+            <input type="text" id="descInput" placeholder="Concepto (opcional)">
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-fin btn-carga" style="flex:1;" onclick="agregarMovimiento('carga')">➕ Registrar Apuesta</button>
+            <button class="btn-fin btn-retiro" style="flex:1;" onclick="agregarMovimiento('retiro')">➖ Registrar Premio</button>
+        </div>
+
+        <div class="finance-history" id="financeHistory" style="margin-top: 10px;">
+            <span style="color: #94a3b8; font-size: 0.8rem; text-align: center;">Sin movimientos financieros aún</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>1. Cargar Sorteo Completo</h3>
+        <textarea id="pasteArea" placeholder="Pegá todo el texto seleccionado de la página acá..."></textarea>
+        <button class="btn" onclick="previsualizarSorteo()">Procesar y Revisar</button>
+
+        <div id="previewContainer">
+            <h4 style="margin: 0; color: var(--primary); text-align: center;">Vista Previa (1° al 10°)</h4>
+            <div class="preview-grid" id="previewGrid"></div>
+            <button class="btn btn-success" onclick="guardarDefinitivo()">Confirmar y Guardar</button>
+            <button class="btn btn-danger" onclick="cancelarPreview()">Cancelar</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>2 & 3. Estadísticas Globales (2 Cifras)</h3>
+        <div class="stats-container">
+            <div class="stat-box">
+                <h4 style="color: var(--hot-color);">🔥 Calientes</h4>
+                <div class="stat-list" id="hotList"></div>
+            </div>
+            <div class="stat-box">
+                <h4 style="color: var(--cold-color);">❄️ Fríos</h4>
+                <div class="stat-list" id="coldList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>4. Borratina (Repetidos a la Cabeza)</h3>
+        <div class="borratina-grid" id="borratinaContainer"></div>
+    </div>
+
+    <div class="card">
+        <h3>5. Historial "A la Cabeza"</h3>
+        <div class="head-list" id="headList">
+            <span style="color: #94a3b8; font-size: 0.85rem; text-align: center;">Sin registros aún</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>📁 Archivo y Cierre Mensual</h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-top: 0;">Guardá los datos actuales como copia histórica y reinicia la aplicación para un nuevo mes.</p>
+        <button class="btn btn-warning" onclick="cerrarYGuardarMes()">🔒 Finalizar Mes Actual y Limpiar</button>
+        
+        <div style="margin-top: 15px;">
+            <h4 style="font-size: 0.95rem; color: var(--primary);">Meses Anteriores Guardados:</h4>
+            <div id="historialMensualContainer" style="max-height: 200px; overflow-y: auto;">
+                <span style="color: #94a3b8; font-size: 0.85rem;">No hay meses archivados todavía.</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalDetalle">
+        <div class="modal-content">
+            <h3 id="modalTitulo" style="color: var(--primary); margin-top:0;">Detalle del Mes</h3>
+            <div id="modalCuerpo" style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 15px;"></div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-success" style="margin-top:0;" id="btnDescargarJSON">📥 Descargar Archivo</button>
+                <button class="btn btn-danger" style="margin-top:0;" onclick="cerrarModal()">✖ Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let historialSorteos = JSON.parse(localStorage.getItem('historialSorteos')) || [];
+        let borratinaEstado = JSON.parse(localStorage.getItem('borratinaEstado')) || {};
+        let movimientosFinancieros = JSON.parse(localStorage.getItem('movimientosFinancieros')) || [];
+        let historialMensual = JSON.parse(localStorage.getItem('historialMensual')) || [];
+        let premiosTemporales = [];
+        let ticketWhatsApp = [];
+
+        // Lógica para el generador de WhatsApp
+        function agregarApuestaWSP() {
+            let numero = document.getElementById('wspNumero').value.trim();
+            let ubicacion = document.getElementById('wspUbicacion').value;
+            let monto = parseFloat(document.getElementById('wspMonto').value);
+
+            if (!numero) {
+                alert("Ingresá un número o triplona.");
+                return;
+            }
+            if (isNaN(monto) || monto <= 0) {
+                alert("Ingresá un monto válido.");
+                return;
+            }
+
+            ticketWhatsApp.push({ numero, ubicacion, monto });
+            document.getElementById('wspNumero').value = '';
+            document.getElementById('wspMonto').value = '';
+            actualizarVistaTicketWSP();
+        }
+
+        function actualizarVistaTicketWSP() {
+            let container = document.getElementById('wspListaContainer');
+            container.innerHTML = '';
+            let total = 0;
+
+            if (ticketWhatsApp.length === 0) {
+                container.innerHTML = '<span style="color: #94a3b8; font-size: 0.8rem; text-align: center;">No hay jugadas añadidas aún</span>';
+                document.getElementById('wspTotalAbonar').innerText = '$0';
+                return;
+            }
+
+            ticketWhatsApp.forEach((item, index) => {
+                total += item.monto;
+                let textoUbicacion = item.ubicacion === 'Triplona' ? 'Triplona' : `${item.ubicacion}°`;
+                container.innerHTML += `
+                    <div class="wsp-item">
+                        <span><b>${item.numero}</b> — ${textoUbicacion} — $${item.monto.toLocaleString()}</span>
+                        <button onclick="eliminarApuestaWSP(${index})" style="background:none; border:none; color:var(--hot-color); font-weight:bold; cursor:pointer;">❌</button>
+                    </div>`;
+            });
+
+            document.getElementById('wspTotalAbonar').innerText = `$${total.toLocaleString()}`;
+        }
+
+        function eliminarApuestaWSP(index) {
+            ticketWhatsApp.splice(index, 1);
+            actualizarVistaTicketWSP();
+        }
+
+        function limpiarTicketWSP() {
+            ticketWhatsApp = [];
+            actualizarVistaTicketWSP();
+        }
+
+        function enviarJugadaWhatsApp() {
+            if (ticketWhatsApp.length === 0) {
+                alert("El ticket está vacío.");
+                return;
+            }
+
+            let mensaje = "🎟️ *TICKET DE APUESTAS - QUINIELA* 🎟️\n\n";
+            let total = 0;
+
+            ticketWhatsApp.forEach(item => {
+                total += item.monto;
+                if (item.ubicacion === 'Triplona') {
+                    mensaje += `• Triplona: ${item.numero} — $${item.monto.toLocaleString()}\n`;
+                } else {
+                    mensaje += `• ${item.numero} _ ${item.ubicacion}° _ $${item.monto.toLocaleString()}\n`;
+                }
+            });
+
+            mensaje += `\n💰 *Total a abonar:* $${total.toLocaleString()}`;
+
+            let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+
+        function agregarMovimiento(tipo) {
+            const montoInput = document.getElementById('montoInput');
+            const descInput = document.getElementById('descInput');
+            
+            let valor = parseFloat(montoInput.value);
+            if (isNaN(valor) || valor <= 0) {
+                alert("Por favor, ingresá un monto válido.");
+                return;
+            }
+
+            let descripcion = descInput.value.trim() || (tipo === 'carga' ? 'Apuesta' : 'Premio');
+
+            movimientosFinancieros.unshift({
+                tipo: tipo,
+                monto: valor,
+                descripcion: descripcion,
+                fecha: new Date().toLocaleDateString()
+            });
+
+            localStorage.setItem('movimientosFinancieros', JSON.stringify(movimientosFinancieros));
+            montoInput.value = '';
+            descInput.value = '';
+            actualizarFinanzas();
+        }
+
+        function actualizarFinanzas() {
+            let totalCargas = 0;
+            let totalRetiros = 0;
+            const container = document.getElementById('financeHistory');
+            
+            container.innerHTML = '';
+            if (movimientosFinancieros.length === 0) {
+                container.innerHTML = '<span style="color: #94a3b8; font-size: 0.8rem; text-align: center;">Sin movimientos financieros aún</span>';
+            }
+
+            movimientosFinancieros.forEach(m => {
+                if (m.tipo === 'carga') totalCargas += m.monto;
+                else totalRetiros += m.monto;
+
+                container.innerHTML += `
+                    <div class="f-item ${m.tipo}">
+                        <span>${m.descripcion} (${m.fecha})</span>
+                        <strong style="color: ${m.tipo === 'carga' ? 'var(--hot-color)' : 'var(--success-color)'};">
+                            ${m.tipo === 'carga' ? '-' : '+'}$${m.monto.toLocaleString()}
+                        </strong>
+                    </div>`;
+            });
+
+            let saldo = totalRetiros - totalCargas;
+            document.getElementById('totalCargas').innerText = `$${totalCargas.toLocaleString()}`;
+            document.getElementById('totalRetiros').innerText = `$${totalRetiros.toLocaleString()}`;
+            let saldoElement = document.getElementById('saldoActual');
+            saldoElement.innerText = `$${saldo.toLocaleString()}`;
+            saldoElement.style.color = saldo >= 0 ? 'var(--success-color)' : 'var(--hot-color)';
+        }
+
+        function construirBorratina() {
+            let conteoCabezas = {};
+            historialSorteos.forEach(sorteo => {
+                let cabeza = sorteo[0];
+                if (cabeza) {
+                    let ult2 = cabeza.slice(-2);
+                    conteoCabezas[ult2] = (conteoCabezas[ult2] || 0) + 1;
+                }
+            });
+
+            const borratinaContainer = document.getElementById('borratinaContainer');
+            borratinaContainer.innerHTML = '';
+            
+            for (let i = 0; i <= 99; i++) {
+                let numStr = i.toString().padStart(2, '0');
+                let div = document.createElement('div');
+                
+                let clases = ['b-item'];
+                if (borratinaEstado[numStr]) {
+                    clases.push('tachado');
+                } else if ((conteoCabezas[numStr] || 0) > 1) {
+                    clases.push('hot-borratina');
+                }
+
+                div.className = clases.join(' ');
+                div.innerText = numStr;
+                div.onclick = () => {
+                    borratinaEstado[numStr] = !borratinaEstado[numStr];
+                    localStorage.setItem('borratinaEstado', JSON.stringify(borratinaEstado));
+                    actualizarVistaHistorial();
+                };
+                borratinaContainer.appendChild(div);
+            }
+        }
+
+        function previsualizarSorteo() {
+            const texto = document.getElementById('pasteArea').value;
+            const todosLosNumeros = texto.match(/\d{4}/g);
+            
+            if (!todosLosNumeros || todosLosNumeros.length < 10) {
+                alert("No se detectaron suficientes números de 4 cifras.");
+                return;
+            }
+
+            let colIzquierda = [];
+            let colDerecha = [];
+
+            todosLosNumeros.forEach((num, index) => {
+                if (index % 2 === 0) {
+                    if (colIzquierda.length < 10) colIzquierda.push(num);
+                } else {
+                    if (colDerecha.length < 10) colDerecha.push(num);
+                }
+            });
+
+            premiosTemporales = colIzquierda.slice(0, 10);
+            
+            if (premiosTemporales.length < 10) {
+                alert("Faltan datos para completar los 10 premios.");
+                return;
+            }
+
+            const grid = document.getElementById('previewGrid');
+            grid.innerHTML = '';
+            premiosTemporales.forEach((num, index) => {
+                grid.innerHTML += `<div class="preview-badge">${index + 1}°: ${num}</div>`;
+            });
+
+            document.getElementById('previewContainer').style.display = 'block';
+        }
+
+        function guardarDefinitivo() {
+            if (premiosTemporales.length === 0) return;
+
+            historialSorteos.unshift(premiosTemporales);
+            localStorage.setItem('historialSorteos', JSON.stringify(historialSorteos));
+            
+            document.getElementById('pasteArea').value = '';
+            document.getElementById('previewContainer').style.display = 'none';
+            premiosTemporales = [];
+            
+            actualizarVistaHistorial();
+        }
+
+        function cancelarPreview() {
+            document.getElementById('previewContainer').style.display = 'none';
+            premiosTemporales = [];
+        }
+
+        function procesarEstadisticas() {
+            let conteo = {};
+            for (let i = 0; i <= 99; i++) conteo[i.toString().padStart(2, '0')] = 0;
+            historialSorteos.forEach(sorteo => {
+                sorteo.forEach(num => {
+                    let ult2 = num.slice(-2);
+                    if (conteo[ult2] !== undefined) conteo[ult2]++;
+                });
+            });
+            let arr = Object.entries(conteo);
+            let calientes = [...arr].sort((a,b) => b[1] - a[1]).slice(0, 10);
+            let frios = [...arr].sort((a,b) => a[1] - b[1]).slice(0, 10);
+            
+            document.getElementById('hotList').innerHTML = calientes.map(i => `<span class="badge hot">${i[0]} (${i[1]})</span>`).join('');
+            document.getElementById('coldList').innerHTML = frios.map(i => `<span class="badge cold">${i[0]} (${i[1]})</span>`).join('');
+            
+            return calientes.map(i => i[0]);
+        }
+
+        function actualizarVistaHistorial() {
+            let topHot = procesarEstadisticas();
+            construirBorratina();
+
+            let container = document.getElementById('headList');
+            container.innerHTML = '';
+            if (historialSorteos.length === 0) {
+                container.innerHTML = '<span style="color: #94a3b8; font-size: 0.85rem; text-align: center;">Sin registros aún</span>';
+                return;
+            }
+
+            historialSorteos.forEach((s, i) => {
+                let cabeza = s[0];
+                let ult2 = cabeza.slice(-2);
+                let esHot = topHot.includes(ult2);
+                
+                container.innerHTML += `
+                    <div class="head-item ${esHot ? 'is-hot' : ''}">
+                        <span>Sorteo #${historialSorteos.length - i} — <strong>1°: ${ult2}</strong> <span style="font-size:0.75rem; color:#64748b;">(${cabeza})</span></span>
+                        ${esHot ? '<span class="hot-alert-tag">¡CALIENTE!</span>' : ''}
+                    </div>`;
+            });
+        }
+
+        function cerrarYGuardarMes() {
+            if (historialSorteos.length === 0 && movimientosFinancieros.length === 0) {
+                alert("No hay datos suficientes para guardar el mes.");
+                return;
+            }
+
+            let nombreMes = prompt("Ingresá un nombre para identificar este mes:", new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' }));
+            if (!nombreMes) return;
+
+            let conteoGeneral = {};
+            for (let i = 0; i <= 99; i++) conteoGeneral[i.toString().padStart(2, '0')] = 0;
+            
+            historialSorteos.forEach(sorteo => {
+                sorteo.forEach(num => {
+                    let ult2 = num.slice(-2);
+                    if (conteoGeneral[ult2] !== undefined) conteoGeneral[ult2]++;
+                });
+            });
+
+            let arr = Object.entries(conteoGeneral);
+            let calientesDetalle = [...arr].sort((a,b) => b[1] - a[1]).slice(0, 10);
+            let friosDetalle = [...arr].sort((a,b) => a[1] - b[1]).slice(0, 10);
+
+            let totalCargas = movimientosFinancieros.filter(f => f.tipo === 'carga').reduce((acc, f) => acc + f.monto, 0);
+            let totalRetiros = movimientosFinancieros.filter(f => f.tipo === 'retiro').reduce((acc, f) => acc + f.monto, 0);
+
+            let datosMes = {
+                id: Date.now(),
+                nombre: nombreMes,
+                totalSorteos: historialSorteos.length,
+                finanzas: {
+                    cargas: totalCargas,
+                    retiros: totalRetiros,
+                    saldo: totalRetiros - totalCargas,
+                    movimientos: movimientosFinancieros
+                },
+                estadisticas: {
+                    frecuenciaPorNumero: conteoGeneral,
+                    calientes: calientesDetalle.map(i => ({ numero: i[0], apariciones: i[1] })),
+                    frios: friosDetalle.map(i => ({ numero: i[0], apariciones: i[1] }))
+                },
+                borratinaEstado: borratinaEstado,
+                historialSorteos: historialSorteos
+            };
+
+            historialMensual.unshift(datosMes);
+            localStorage.setItem('historialMensual', JSON.stringify(historialMensual));
+
+            historialSorteos = [];
+            borratinaEstado = {};
+            movimientosFinancieros = [];
+
+            localStorage.removeItem('historialSorteos');
+            localStorage.removeItem('borratinaEstado');
+            localStorage.removeItem('movimientosFinancieros');
+
+            actualizarFinanzas();
+            actualizarVistaHistorial();
+            actualizarHistorialMensual();
+
+            alert("¡Mes archivado con estadísticas completas!");
+        }
+
+        function actualizarHistorialMensual() {
+            const container = document.getElementById('historialMensualContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!historialMensual || historialMensual.length === 0) {
+                container.innerHTML = '<span style="color: #94a3b8; font-size: 0.85rem;">No hay meses archivados todavía.</span>';
+                return;
+            }
+
+            historialMensual.forEach(m => {
+                let totalS = m.totalSorteos !== undefined ? m.totalSorteos : (m.sorteos ? m.sorteos.length : (m.historialSorteos ? m.historialSorteos.length : 0));
+                container.innerHTML += `
+                    <div class="mes-item">
+                        <div>
+                            <strong>${m.nombre}</strong><br>
+                            <small style="color: #64748b;">${totalS} sorteos registrados</small>
+                        </div>
+                        <button class="btn-fin btn-carga" onclick="verDetalleMes(${m.id})">👁️ Ver</button>
+                    </div>`;
+            });
+        }
+
+        function verDetalleMes(id) {
+            let mes = historialMensual.find(m => m.id === id);
+            if (!mes) return;
+
+            let totalSorteos = mes.totalSorteos !== undefined ? mes.totalSorteos : (mes.sorteos ? mes.sorteos.length : (mes.historialSorteos ? mes.historialSorteos.length : 0));
+            let cargas = 0;
+            let retiros = 0;
+
+            if (mes.finanzas && typeof mes.finanzas === 'object' && !Array.isArray(mes.finanzas)) {
+                cargas = mes.finanzas.cargas;
+                retiros = mes.finanzas.retiros;
+            } else if (Array.isArray(mes.finanzas)) {
+                cargas = mes.finanzas.filter(f => f.tipo === 'carga').reduce((acc, f) => acc + f.monto, 0);
+                retiros = mes.finanzas.filter(f => f.tipo === 'retiro').reduce((acc, f) => acc + f.monto, 0);
+            }
+            let saldo = retiros - cargas;
+
+            document.getElementById('modalTitulo').innerText = `📊 ${mes.nombre}`;
+            
+            let htmlContenido = `
+                <div style="background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color);">
+                    <b>📅 Sorteos Registrados:</b> ${totalSorteos}<br>
+                    <b>📥 Total Cargas:</b> $${cargas.toLocaleString()}<br>
+                    <b>📤 Total Retiros:</b> $${retiros.toLocaleString()}<br>
+                    <b>💰 Saldo Final:</b> <span style="color:${saldo >= 0 ? 'var(--success-color)' : 'var(--hot-color)'}; font-weight:bold;">$${saldo.toLocaleString()}</span>
+                </div>
+            `;
+
+            if (mes.estadisticas && mes.estadisticas.calientes) {
+                htmlContenido += `
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: var(--hot-color);">🔥 Números Calientes (Apariciones):</strong>
+                        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
+                            ${mes.estadisticas.calientes.map(i => `<span class="badge hot">${i.numero} (${i.apariciones})</span>`).join('')}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: var(--cold-color);">❄️ Números Fríos (Apariciones):</strong>
+                        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
+                            ${mes.estadisticas.frios.map(i => `<span class="badge cold">${i.numero} (${i.apariciones})</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modalCuerpo').innerHTML = htmlContenido;
+
+            const btnDescargar = document.getElementById('btnDescargarJSON');
+            btnDescargar.onclick = function() {
+                let blob = new Blob([JSON.stringify(mes, null, 2)], { type: 'application/json' });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = `quiniela_reporte_${mes.nombre.replace(/\s+/g, '_')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            document.getElementById('modalDetalle').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalDetalle').style.display = 'none';
+        }
+        
+        actualizarFinanzas();
+        actualizarVistaHistorial();
+        actualizarHistorialMensual();
+    </script>
+</body>
+</html>
+            
