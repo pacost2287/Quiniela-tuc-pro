@@ -1,0 +1,15 @@
+{
+  "name": "Seguimiento Quiniela Pro Max",
+  "short_name": "QuinielaPro",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "./icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
