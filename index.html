@@ -308,7 +308,7 @@ ki<!DOCTYPE html>
         </a>
     </div>
 
-    <!-- SECCIÓN: Armar Jugada para WhatsApp (Actualizada con Redoblona y Triplona) -->
+    <!-- SECCIÓN: Armar Jugada para WhatsApp (Redoblona con posiciones independientes) -->
     <div class="card" style="border: 2px solid var(--whatsapp-color);">
         <h3 style="color: var(--whatsapp-color);">📱 Armar Jugada para Agencia (WhatsApp)</h3>
         
@@ -316,33 +316,53 @@ ki<!DOCTYPE html>
             <label style="font-size: 0.85rem; font-weight: bold; color: #64748b;">Tipo de Jugada:</label>
             <select id="wspTipoJugada" onchange="cambiarTipoJugada()" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; background: white; margin-top: 4px;">
                 <option value="normal">Normal / Directa</option>
-                <option value="redoblona">Redoblona (2 números combinados)</option>
+                <option value="redoblona">Redoblona (2 números con posiciones)</option>
                 <option value="triplona">Triplona (2 números de 3 cifras)</option>
             </select>
         </div>
 
-        <!-- Contenedor para Normal y Redoblona -->
-        <div id="camposNormalRedoblona">
+        <!-- Contenedor para Jugada Normal -->
+        <div id="camposNormal">
             <div class="wsp-inputs" style="grid-template-columns: 1fr 1fr; margin-bottom: 6px;">
-                <input type="number" id="wspNum1" placeholder="Número 1 (ej: 77)">
-                <input type="number" id="wspNum2" placeholder="Número 2 (Opc. Redoblona)">
-            </div>
-            <div class="wsp-inputs" style="grid-template-columns: 1fr 1fr;">
-                <select id="wspUbicacion">
-                    <option value="1">Hasta el 1° (Cabeza)</option>
+                <input type="number" id="wspNum1" placeholder="Número (ej: 20)">
+                <select id="wspUbicacionNormal">
+                    <option value="1">1° (Cabeza)</option>
                     <option value="5">Hasta el 5°</option>
                     <option value="10">Hasta el 10°</option>
                     <option value="20">Hasta el 20°</option>
                 </select>
-                <input type="number" id="wspMonto" placeholder="Monto ($)">
             </div>
+            <input type="number" id="wspMontoNormal" placeholder="Monto ($)" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+
+        <!-- Contenedor para Redoblona (Cada número con su posición y un monto final) -->
+        <div id="camposRedoblona" style="display: none;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                <input type="number" id="wspRedNum1" placeholder="1° Num (ej: 20)" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                <select id="wspRedUbi1" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; background: white;">
+                    <option value="1">1° (Cabeza)</option>
+                    <option value="5">Hasta el 5°</option>
+                    <option value="10">Hasta el 10°</option>
+                    <option value="20">Hasta el 20°</option>
+                </select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                <input type="number" id="wspRedNum2" placeholder="2° Num (ej: 76)" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                <select id="wspRedUbi2" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; background: white;">
+                    <option value="1">1° (Cabeza)</option>
+                    <option value="5">Hasta el 5°</option>
+                    <option value="10">Hasta el 10°</option>
+                    <option value="20">Hasta el 20°</option>
+                </select>
+            </div>
+            <input type="number" id="wspMontoRedoblona" placeholder="Monto total ($)" style="width: 100%; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
         </div>
 
         <!-- Contenedor exclusivo para Triplona -->
         <div id="camposTriplona" style="display: none;">
             <div class="wsp-inputs" style="grid-template-columns: 1fr 1fr; margin-bottom: 6px;">
-                <input type="number" id="wspTrip1" placeholder="1° Num 3 cifras (ej: 320)">
-                <input type="number" id="wspTrip2" placeholder="2° Num 3 cifras (ej: 710)">
+                <input type="number" id="wspTrip1" placeholder="1° Num 3 cifras">
+                <input type="number" id="wspTrip2" placeholder="2° Num 3 cifras">
             </div>
             <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 6px; text-align: center;">ℹ️ La triplona no lleva monto adicional.</div>
         </div>
@@ -355,6 +375,13 @@ ki<!DOCTYPE html>
                 <span style="color: #94a3b8; font-size: 0.8rem; text-align: center;">No hay jugadas añadidas aún</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">
+                <span>Total a Abonar:</span>
+                <span id="wspTotalAbonar" style="color: var(--success-color);">$0</span>
+            </div>
+            <button class="btn btn-whatsapp" style="margin-top:0;" onclick="enviarJugadaWhatsApp()">💬 Enviar Jugada por WhatsApp</button>
+            <button class="btn btn-danger" style="margin-top: 5px; padding: 6px; font-size: 0.8rem;" onclick="limpiarTicketWSP()">🗑️ Limpiar Ticket</button>
+        </div>
+    </div>
                 <span>Total a Abonar:</span>
                 <span id="wspTotalAbonar" style="color: var(--success-color);">$0</span>
             </div>
@@ -467,26 +494,22 @@ ki<!DOCTYPE html>
         let premiosTemporales = [];
         let ticketWhatsApp = [];
 
-        // Control visual entre Normal, Redoblona y Triplona
         function cambiarTipoJugada() {
             let tipo = document.getElementById('wspTipoJugada').value;
-            let divNR = document.getElementById('camposNormalRedoblona');
+            let divNormal = document.getElementById('camposNormal');
+            let divRed = document.getElementById('camposRedoblona');
             let divTrip = document.getElementById('camposTriplona');
-            let inputNum2 = document.getElementById('wspNum2');
 
-            if (tipo === 'triplona') {
-                divNR.style.display = 'none';
+            divNormal.style.display = 'none';
+            divRed.style.display = 'none';
+            divTrip.style.display = 'none';
+
+            if (tipo === 'normal') {
+                divNormal.style.display = 'block';
+            } else if (tipo === 'redoblona') {
+                divRed.style.display = 'block';
+            } else if (tipo === 'triplona') {
                 divTrip.style.display = 'block';
-            } else {
-                divNR.style.display = 'block';
-                divTrip.style.display = 'none';
-                if (tipo === 'redoblona') {
-                    inputNum2.style.display = 'block';
-                    inputNum2.placeholder = "2° Número Redoblona";
-                } else {
-                    inputNum2.style.display = 'none';
-                    inputNum2.value = '';
-                }
             }
         }
 
@@ -503,14 +526,35 @@ ki<!DOCTYPE html>
                 ticketWhatsApp.push({ tipo: 'triplona', t1, t2 });
                 document.getElementById('wspTrip1').value = '';
                 document.getElementById('wspTrip2').value = '';
+
+            } else if (tipo === 'redoblona') {
+                let num1 = document.getElementById('wspRedNum1').value.trim();
+                let ubi1 = document.getElementById('wspRedUbi1').value;
+                let num2 = document.getElementById('wspRedNum2').value.trim();
+                let ubi2 = document.getElementById('wspRedUbi2').value;
+                let monto = parseFloat(document.getElementById('wspMontoRedoblona').value);
+
+                if (!num1 || !num2) {
+                    alert("Ingresá ambos números para la redoblona.");
+                    return;
+                }
+                if (isNaN(monto) || monto <= 0) {
+                    alert("Ingresá un monto total válido.");
+                    return;
+                }
+
+                ticketWhatsApp.push({ tipo: 'redoblona', num1, ubi1, num2, ubi2, monto });
+                document.getElementById('wspRedNum1').value = '';
+                document.getElementById('wspRedNum2').value = '';
+                document.getElementById('wspMontoRedoblona').value = '';
+
             } else {
                 let num1 = document.getElementById('wspNum1').value.trim();
-                let num2 = document.getElementById('wspNum2').value.trim();
-                let ubicacion = document.getElementById('wspUbicacion').value;
-                let monto = parseFloat(document.getElementById('wspMonto').value);
+                let ubicacion = document.getElementById('wspUbicacionNormal').value;
+                let monto = parseFloat(document.getElementById('wspMontoNormal').value);
 
                 if (!num1) {
-                    alert("Ingresá el número principal.");
+                    alert("Ingresá el número.");
                     return;
                 }
                 if (isNaN(monto) || monto <= 0) {
@@ -518,19 +562,9 @@ ki<!DOCTYPE html>
                     return;
                 }
 
-                if (tipo === 'redoblona') {
-                    if (!num2) {
-                        alert("Para la redoblona necesitas ingresar el segundo número.");
-                        return;
-                    }
-                    ticketWhatsApp.push({ tipo: 'redoblona', num1, num2, ubicacion, monto });
-                    document.getElementById('wspNum2').value = '';
-                } else {
-                    ticketWhatsApp.push({ tipo: 'normal', num1, ubicacion, monto });
-                }
-
+                ticketWhatsApp.push({ tipo: 'normal', num1, ubicacion, monto });
                 document.getElementById('wspNum1').value = '';
-                document.getElementById('wspMonto').value = '';
+                document.getElementById('wspMontoNormal').value = '';
             }
 
             actualizarVistaTicketWSP();
@@ -553,17 +587,18 @@ ki<!DOCTYPE html>
                     textoItem = `Triplona: ${item.t1} - ${item.t2} (Sin cargo)`;
                 } else if (item.tipo === 'redoblona') {
                     total += item.monto;
-                    let textoUbicacion = item.ubicacion === '1' ? '1° (Cabeza)' : `a los ${item.ubicacion}°`;
-                    textoItem = `Redoblona: ${item.num1} y ${item.num2} — ${textoUbicacion} — $${item.monto.toLocaleString()}`;
+                    let ubiText1 = item.ubi1 === '1' ? '1°' : `${item.ubi1}°`;
+                    let ubiText2 = item.ubi2 === '1' ? '1°' : `${item.ubi2}°`;
+                    textoItem = `Redobl.: ${item.num1}_${ubiText1} / ${item.num2}_${ubiText2} — $${item.monto.toLocaleString()}`;
                 } else {
                     total += item.monto;
-                    let textoUbicacion = item.ubicacion === '1' ? '1° (Cabeza)' : `a los ${item.ubicacion}°`;
-                    textoItem = `${item.num1} — ${textoUbicacion} — $${item.monto.toLocaleString()}`;
+                    let ubiText = item.ubicacion === '1' ? '1°' : `${item.ubicacion}°`;
+                    textoItem = `${item.num1} — ${ubiText} — $${item.monto.toLocaleString()}`;
                 }
 
                 container.innerHTML += `
                     <div class="wsp-item">
-                        <span style="font-size:0.8rem;"><b>${textoItem}</b></span>
+                        <span style="font-size:0.75rem;"><b>${textoItem}</b></span>
                         <button onclick="eliminarApuestaWSP(${index})" style="background:none; border:none; color:var(--hot-color); font-weight:bold; cursor:pointer;">❌</button>
                     </div>`;
             });
@@ -595,10 +630,13 @@ ki<!DOCTYPE html>
                     mensaje += `• Triplona: ${item.t1} - ${item.t2}\n`;
                 } else if (item.tipo === 'redoblona') {
                     total += item.monto;
-                    mensaje += `• Redoblona: ${item.num1} y ${item.num2} _ ${item.ubicacion}° _ $${item.monto.toLocaleString()}\n`;
+                    let u1 = item.ubi1 === '1' ? '1°' : `${item.ubi1}°`;
+                    let u2 = item.ubi2 === '1' ? '1°' : `${item.ubi2}°`;
+                    mensaje += `• Redoblona: ${item.num1} _ ${u1} y ${item.num2} _ ${u2} _ $${item.monto.toLocaleString()}\n`;
                 } else {
                     total += item.monto;
-                    mensaje += `• ${item.num1} _ ${item.ubicacion}° _ $${item.monto.toLocaleString()}\n`;
+                    let u = item.ubicacion === '1' ? '1°' : `${item.ubicacion}°`;
+                    mensaje += `• ${item.num1} _ ${u} _ $${item.monto.toLocaleString()}\n`;
                 }
             });
 
