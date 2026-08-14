@@ -1,0 +1,1 @@
+una herramienta q permite cargar datos de sorteos de la quiniela. hacer un seguimiento de número q salen a la cabeza y calientes y fríos hasta los 10° además podés llevar un control financiero y con opción a crear un ticket de apuesta y enviarlo x wsp
